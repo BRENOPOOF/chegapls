@@ -1950,213 +1950,142 @@ function redzlib:MakeWindow(Configs)
 		WaitClick = false
 	end
 	
-	function Window:ConfigBtn()
-		local ConfigDialog = Window:Dialog({
-			Title = "🎨 Configurações de Tema",
-			Text = "Escolha o tema para personalizar a interface do Lyra Hub:",
-			Options = {
-				{"🔴 Red", function()
-					redzlib:SetTheme("Red")
-				end},
-				{"🔵 Blue", function()
-					redzlib:SetTheme("Blue")
-				end},
-				{"🟣 Purple", function()
-					redzlib:SetTheme("Purple")
-				end},
-				{"🟢 Green", function()
-					redzlib:SetTheme("Green")
-				end},
-				{"💖 Pink", function()
-					redzlib:SetTheme("Pink")
-				end},
-				{"🟡 Yellow", function()
-					redzlib:SetTheme("Yellow")
-				end},
-				{"❌ Cancelar"}
-			}
-		})
-	end
-	
-	function Window:Minimize()
-		MainFrame.Visible = not MainFrame.Visible
-	end
-
-	function Window:SetThemeParticles(enabled)
-		if enabled then
-			if not ParticleConnection then
-				ParticleConnection = RunService.Heartbeat:Connect(function()
-					UpdateCyberpunkParticles()
-					SpawnCyberpunkSystem()
-				end)
-			end
-			ParticleContainer.Visible = true
-		else
-			if ParticleConnection then
-				ParticleConnection:Disconnect()
-				ParticleConnection = nil
-			end
-			ParticleContainer.Visible = false
-		end
-	end
-
-	function Window:Minimize()
-		MainFrame.Visible = not MainFrame.Visible
-	end
-
-	function Window:AddMinimizeButton(Configs)
-		local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-			Size = UDim2.fromOffset(6, 6),
-			Position = UDim2.fromScale(0.30, 0.30),
-			BackgroundTransparency = 1,
-			AutoButtonColor = false
-		}))
-
-		local Stroke, Corner
-
-		if Configs.Corner then
-			Corner = Make("Corner", Button)
-			SetProps(Corner, Configs.Corner)
-		end
-
-		if Configs.Stroke then
-			Stroke = Make("Stroke", Button)
-			SetProps(Stroke, Configs.Stroke)
-		end
-
-		SetProps(Button, Configs.Button)
-
-		Button.Activated:Connect(Window.Minimize)
-
-		return {
-			Stroke = Stroke,
-			Corner = Corner,
-			Button = Button
+function Window:ConfigBtn()
+	local ConfigDialog = Window:Dialog({
+		Title = "Configurações de Tema",
+		Text = "Escolha o tema para personalizar a interface:",
+		Options = {
+			{"Red", function()
+				redzlib:SetTheme("Red")
+			end},
+			{"Blue", function()
+				redzlib:SetTheme("Blue")
+			end},
+			{"Purple", function()
+				redzlib:SetTheme("Purple")
+			end},
+			{"Green", function()
+				redzlib:SetTheme("Green")
+			end},
+			{"Pink", function()
+				redzlib:SetTheme("Pink")
+			end},
+			{"Yellow", function()
+				redzlib:SetTheme("Yellow")
+			end},
+			{"Cancelar"}
 		}
+	})
+end
+
+function Window:Dialog(Configs)
+	if MainFrame:FindFirstChild("Dialog") then return end
+	if Minimized then
+		Window:MinimizeBtn()
 	end
 	
-	function Window:Set(Val1, Val2)
-		if type(Val1) == "string" and type(Val2) == "string" then
-			Title.Text = Val1
-			Title.SubTitle.Text = Val2
-		elseif type(Val1) == "string" then
-			Title.Text = Val1
-		end
-	end
+	local DTitle = Configs[1] or Configs.Title or "Dialog"
+	local DText = Configs[2] or Configs.Text or "This is a Dialog"
+	local DOptions = Configs[3] or Configs.Options or {}
 	
-	function Window:Dialog(Configs)
-		if MainFrame:FindFirstChild("Dialog") then return end
-		if Minimized then
-			Window:MinimizeBtn()
-		end
-		
-		local DTitle = Configs[1] or Configs.Title or "Dialog"
-		local DText = Configs[2] or Configs.Text or "This is a Dialog"
-		local DOptions = Configs[3] or Configs.Options or {}
-		
-		-- Tamanho aumentado para a dialog de temas
-		local isThemeDialog = DTitle:find("Tema") or DTitle:find("Configurações")
-		local dialogWidth = isThemeDialog and 350 or 250
-		local dialogHeight = isThemeDialog and 220 or 150
-		
-		local Frame = Create("Frame", {
-			Active = true,
-			Size = UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08),
-			Position = UDim2.fromScale(0.5, 0.5),
-			AnchorPoint = Vector2.new(0.5, 0.5)
-		}, {
-			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.GothamBold,
-				Size = UDim2.new(1, 0, 0, isThemeDialog and 30 or 20),
-				Text = DTitle,
-				TextXAlignment = "Center",
-				TextColor3 = Theme["Color Text"],
-				TextSize = isThemeDialog and 16 or 15,
-				Position = UDim2.fromOffset(0, 5),
-				BackgroundTransparency = 1
-			}), "Text"),
-			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.GothamMedium,
-				Size = UDim2.new(1, -25),
-				AutomaticSize = "Y",
-				Text = DText,
-				TextXAlignment = "Left",
-				TextColor3 = Theme["Color Dark Text"],
-				TextSize = isThemeDialog and 13 or 12,
-				Position = UDim2.fromOffset(15, isThemeDialog and 35 or 25),
-				BackgroundTransparency = 1,
-				TextWrapped = true
-			}), "DarkText")
-		})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame, UDim.new(0, 5))
-		
-		local ButtonsHolder = Create("Frame", Frame, {
-			Size = UDim2.fromScale(1, 0.35),
-			Position = UDim2.fromScale(0, 1),
-			AnchorPoint = Vector2.new(0, 1),
-			BackgroundColor3 = Theme["Color Hub 2"],
+	-- Tamanho ajustado para a dialog de temas com layout vertical
+	local isThemeDialog = DTitle:find("Tema") or DTitle:find("Configurações")
+	local dialogWidth = isThemeDialog and 220 or 250  -- Largura adequada para botões verticais
+	local dialogHeight = isThemeDialog and 280 or 200  -- Altura maior para acomodar mais botões
+	
+	local Frame = Create("Frame", {
+		Active = true,
+		Size = UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08),
+		Position = UDim2.fromScale(0.5, 0.5),
+		AnchorPoint = Vector2.new(0.5, 0.5)
+	}, {
+		InsertTheme(Create("TextLabel", {
+			Font = Enum.Font.GothamBold,
+			Size = UDim2.new(1, 0, 0, 20),
+			Text = DTitle,
+			TextXAlignment = "Center",
+			TextColor3 = Theme["Color Text"],
+			TextSize = 14,
+			Position = UDim2.fromOffset(0, 5),
 			BackgroundTransparency = 1
-		}, {
-			Create("UIListLayout", {
-				Padding = UDim.new(0, 10),
-				VerticalAlignment = "Center",
-				FillDirection = isThemeDialog and "Vertical" or "Horizontal",
-				HorizontalAlignment = "Center"
-			})
+		}), "Text"),
+		InsertTheme(Create("TextLabel", {
+			Font = Enum.Font.GothamMedium,
+			Size = UDim2.new(1, -25),
+			AutomaticSize = "Y",
+			Text = DText,
+			TextXAlignment = "Left",
+			TextColor3 = Theme["Color Dark Text"],
+			TextSize = 11,
+			Position = UDim2.fromOffset(15, 25),
+			BackgroundTransparency = 1,
+			TextWrapped = true
+		}), "DarkText")
+	})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame, UDim.new(0, 5))
+	
+	local ButtonsHolder = Create("Frame", Frame, {
+		Size = UDim2.new(1, -20, 0, 120),  -- Altura fixa para os botões
+		Position = UDim2.fromScale(0.5, 0.85),
+		AnchorPoint = Vector2.new(0.5, 0.85),
+		BackgroundTransparency = 1
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 5),
+			VerticalAlignment = "Center",
+			FillDirection = "Vertical",  -- AGORA NA VERTICAL
+			HorizontalAlignment = "Center"
+		}),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, 5),
+			PaddingBottom = UDim.new(0, 5)
+		})
+	})
+	
+	local Screen = InsertTheme(Create("Frame", MainFrame, {
+		BackgroundTransparency = 0.6,
+		Active = true,
+		BackgroundColor3 = Theme["Color Hub 2"],
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundColor3 = Theme["Color Stroke"],
+		Name = "Dialog"
+	}), "Stroke")
+	
+	MainCorner:Clone().Parent = Screen
+	Frame.Parent = Screen
+	CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth, dialogHeight), 0.2})
+	CreateTween({Frame, "Transparency", 0, 0.15})
+	CreateTween({Screen, "Transparency", 0.3, 0.15})
+	
+	local ButtonCount, Dialog = 1, {}
+	function Dialog:Button(Configs)
+		local Name = Configs[1] or Configs.Name or Configs.Title or ""
+		local Callback = Configs[2] or Configs.Callback or function()end
+		
+		ButtonCount = ButtonCount + 1
+		local Button = Make("Button", ButtonsHolder)
+		Make("Corner", Button, UDim.new(0, 3))
+		SetProps(Button, {
+			Text = Name,
+			Font = Enum.Font.GothamBold,
+			TextColor3 = Theme["Color Text"],
+			TextSize = 11,
+			Size = UDim2.new(1, -10, 0, 25)  -- Botões ocupam toda a largura disponível
 		})
 		
-		local Screen = InsertTheme(Create("Frame", MainFrame, {
-			BackgroundTransparency = 0.6,
-			Active = true,
-			BackgroundColor3 = Theme["Color Hub 2"],
-			Size = UDim2.new(1, 0, 1, 0),
-			BackgroundColor3 = Theme["Color Stroke"],
-			Name = "Dialog"
-		}), "Stroke")
-		
-		MainCorner:Clone().Parent = Screen
-		Frame.Parent = Screen
-		CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth, dialogHeight), 0.2})
-		CreateTween({Frame, "Transparency", 0, 0.15})
-		CreateTween({Screen, "Transparency", 0.3, 0.15})
-		
-		local ButtonCount, Dialog = 1, {}
-		function Dialog:Button(Configs)
-			local Name = Configs[1] or Configs.Name or Configs.Title or ""
-			local Callback = Configs[2] or Configs.Callback or function()end
-			
-			ButtonCount = ButtonCount + 1
-			local Button = Make("Button", ButtonsHolder)
-			-- Botões retangulares
-			Make("Corner", Button, UDim.new(0, 3))
-			SetProps(Button, {
-				Text = Name,
-				Font = Enum.Font.GothamBold,
-				TextColor3 = Theme["Color Text"],
-				TextSize = isThemeDialog and 13 or 12,
-				Size = isThemeDialog and UDim2.new(0.8, 0, 0, 35) or UDim2.new(1 / ButtonCount, -(((ButtonCount - 1) * 20) / ButtonCount), 0, 32)
-			})
-			
-			if not isThemeDialog then
-				for _,Button in pairs(ButtonsHolder:GetChildren()) do
-					if Button:IsA("TextButton") then
-						Button.Size = UDim2.new(1 / ButtonCount, -(((ButtonCount - 1) * 20) / ButtonCount), 0, 32)
-					end
-				end
-			end
-			Button.Activated:Connect(Dialog.Close)
-			Button.Activated:Connect(Callback)
-		end
-		function Dialog:Close()
-			CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08), 0.2})
-			CreateTween({Screen, "Transparency", 1, 0.15})
-			CreateTween({Frame, "Transparency", 1, 0.15, true})
-			Screen:Destroy()
-		end
-		table.foreach(DOptions, function(_,Button)
-			Dialog:Button(Button)
-		end)
-		return Dialog
+		Button.Activated:Connect(Dialog.Close)
+		Button.Activated:Connect(Callback)
 	end
+	function Dialog:Close()
+		CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08), 0.2})
+		CreateTween({Screen, "Transparency", 1, 0.15})
+		CreateTween({Frame, "Transparency", 1, 0.15, true})
+		Screen:Destroy()
+	end
+	table.foreach(DOptions, function(_,Button)
+		Dialog:Button(Button)
+	end)
+	return Dialog
+end
 	
 	function Window:SelectTab(TabSelect)
 		if type(TabSelect) == "number" then
