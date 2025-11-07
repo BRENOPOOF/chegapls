@@ -1952,28 +1952,28 @@ function redzlib:MakeWindow(Configs)
 	
 function Window:ConfigBtn()
 	local ConfigDialog = Window:Dialog({
-		Title = "Configurações de Tema",
+		Title = "🎨 Configurações de Tema",
 		Text = "Escolha o tema para personalizar a interface:",
 		Options = {
-			{"Red", function()
+			{"🔴 Red", function()
 				redzlib:SetTheme("Red")
 			end},
-			{"Blue", function()
+			{"🔵 Blue", function()
 				redzlib:SetTheme("Blue")
 			end},
-			{"Purple", function()
+			{"🟣 Purple", function()
 				redzlib:SetTheme("Purple")
 			end},
-			{"Green", function()
+			{"🟢 Green", function()
 				redzlib:SetTheme("Green")
 			end},
-			{"Pink", function()
+			{"💖 Pink", function()
 				redzlib:SetTheme("Pink")
 			end},
-			{"Yellow", function()
+			{"🟡 Yellow", function()
 				redzlib:SetTheme("Yellow")
 			end},
-			{"Cancelar"}
+			{"❌ Cancelar"}
 		}
 	})
 end
@@ -1988,10 +1988,10 @@ function Window:Dialog(Configs)
 	local DText = Configs[2] or Configs.Text or "This is a Dialog"
 	local DOptions = Configs[3] or Configs.Options or {}
 	
-	-- Tamanho ajustado para a dialog de temas com layout vertical
+	-- Tamanho maior para acomodar a grade de botões
 	local isThemeDialog = DTitle:find("Tema") or DTitle:find("Configurações")
-	local dialogWidth = isThemeDialog and 220 or 250  -- Largura adequada para botões verticais
-	local dialogHeight = isThemeDialog and 280 or 200  -- Altura maior para acomodar mais botões
+	local dialogWidth = isThemeDialog and 320 or 250
+	local dialogHeight = isThemeDialog and 280 : 200
 	
 	local Frame = Create("Frame", {
 		Active = true,
@@ -2023,21 +2023,20 @@ function Window:Dialog(Configs)
 		}), "DarkText")
 	})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame, UDim.new(0, 5))
 	
+	-- Container principal para os botões com grade
 	local ButtonsHolder = Create("Frame", Frame, {
-		Size = UDim2.new(1, -20, 0, 120),  -- Altura fixa para os botões
-		Position = UDim2.fromScale(0.5, 0.85),
-		AnchorPoint = Vector2.new(0.5, 0.85),
+		Size = UDim2.new(1, -20, 0, 150),
+		Position = UDim2.fromScale(0.5, 0.8),
+		AnchorPoint = Vector2.new(0.5, 0.8),
 		BackgroundTransparency = 1
 	}, {
-		Create("UIListLayout", {
-			Padding = UDim.new(0, 5),
+		Create("UIGridLayout", {
+			CellSize = UDim2.new(0, 90, 0, 30),  -- Tamanho de cada célula
+			CellPadding = UDim2.new(0, 10, 0, 8),  -- Espaçamento entre células
+			HorizontalAlignment = "Center",
 			VerticalAlignment = "Center",
-			FillDirection = "Vertical",  -- AGORA NA VERTICAL
-			HorizontalAlignment = "Center"
-		}),
-		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 5),
-			PaddingBottom = UDim.new(0, 5)
+			SortOrder = "LayoutOrder",
+			StartCorner = "TopLeft"
 		})
 	})
 	
@@ -2061,19 +2060,21 @@ function Window:Dialog(Configs)
 		local Name = Configs[1] or Configs.Name or Configs.Title or ""
 		local Callback = Configs[2] or Configs.Callback or function()end
 		
-		ButtonCount = ButtonCount + 1
 		local Button = Make("Button", ButtonsHolder)
-		Make("Corner", Button, UDim.new(0, 3))
+		Make("Corner", Button, UDim.new(0, 5))
 		SetProps(Button, {
 			Text = Name,
 			Font = Enum.Font.GothamBold,
 			TextColor3 = Theme["Color Text"],
 			TextSize = 11,
-			Size = UDim2.new(1, -10, 0, 25)  -- Botões ocupam toda a largura disponível
+			Size = UDim2.new(0, 90, 0, 30),  -- Tamanho fixo para quadrados
+			LayoutOrder = ButtonCount
 		})
 		
 		Button.Activated:Connect(Dialog.Close)
 		Button.Activated:Connect(Callback)
+		
+		ButtonCount = ButtonCount + 1
 	end
 	function Dialog:Close()
 		CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08), 0.2})
