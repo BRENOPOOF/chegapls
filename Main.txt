@@ -1255,7 +1255,7 @@ end
 
 AddEle("Corner", function(parent, CornerRadius)
 	local New = SetProps(Create("UICorner", parent, {
-		CornerRadius = CornerRadius or UDim.new(0, 7)
+		CornerRadius = CornerRadius or UDim.new(0, 3)  -- Alterado para cantos mais retangulares
 	}), props)
 	return New
 end)
@@ -1351,7 +1351,10 @@ local function ButtonFrame(Instance, Title, Description, HolderSize)
 		Size = UDim2.new(1, 0, 0, 45),
 		AutomaticSize = "Y",
 		Name = "Option"
-	})Make("Corner", Frame, UDim.new(0, 6))
+	})
+	
+	-- Cantos retangulares (menos arredondados)
+	Make("Corner", Frame, UDim.new(0, 3))
 	
 	LabelHolder = Create("Frame", Frame, {
 		AutomaticSize = "Y",
@@ -1631,7 +1634,7 @@ function redzlib:MakeWindow(Configs)
 	Make("Gradient", MainFrame, {
 		Rotation = 45
 	})MakeDrag(MainFrame)
-	local MainCorner = Make("Corner", MainFrame)
+	local MainCorner = Make("Corner", MainFrame, UDim.new(0, 8))
 	local Components = Create("Folder", MainFrame, {
 		Name = "Components"
 	})
@@ -1949,28 +1952,28 @@ function redzlib:MakeWindow(Configs)
 	
 	function Window:ConfigBtn()
 		local ConfigDialog = Window:Dialog({
-			Title = "Configurações de Tema",
-			Text = "Escolha o tema para a interface:",
+			Title = "🎨 Configurações de Tema",
+			Text = "Escolha o tema para personalizar a interface do Lyra Hub:",
 			Options = {
-				{"Red", function()
+				{"🔴 Red", function()
 					redzlib:SetTheme("Red")
 				end},
-				{"Blue", function()
+				{"🔵 Blue", function()
 					redzlib:SetTheme("Blue")
 				end},
-				{"Purple", function()
+				{"🟣 Purple", function()
 					redzlib:SetTheme("Purple")
 				end},
-				{"Green", function()
+				{"🟢 Green", function()
 					redzlib:SetTheme("Green")
 				end},
-				{"Pink", function()
+				{"💖 Pink", function()
 					redzlib:SetTheme("Pink")
 				end},
-				{"Yellow", function()
+				{"🟡 Yellow", function()
 					redzlib:SetTheme("Yellow")
 				end},
-				{"Cancel"}
+				{"❌ Cancelar"}
 			}
 		})
 	end
@@ -2051,20 +2054,25 @@ function redzlib:MakeWindow(Configs)
 		local DText = Configs[2] or Configs.Text or "This is a Dialog"
 		local DOptions = Configs[3] or Configs.Options or {}
 		
+		-- Tamanho aumentado para a dialog de temas
+		local isThemeDialog = DTitle:find("Tema") or DTitle:find("Configurações")
+		local dialogWidth = isThemeDialog and 350 or 250
+		local dialogHeight = isThemeDialog and 220 or 150
+		
 		local Frame = Create("Frame", {
 			Active = true,
-			Size = UDim2.fromOffset(250 * 1.08, 150 * 1.08),
+			Size = UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08),
 			Position = UDim2.fromScale(0.5, 0.5),
 			AnchorPoint = Vector2.new(0.5, 0.5)
 		}, {
 			InsertTheme(Create("TextLabel", {
 				Font = Enum.Font.GothamBold,
-				Size = UDim2.new(1, 0, 0, 20),
+				Size = UDim2.new(1, 0, 0, isThemeDialog and 30 or 20),
 				Text = DTitle,
-				TextXAlignment = "Left",
+				TextXAlignment = "Center",
 				TextColor3 = Theme["Color Text"],
-				TextSize = 15,
-				Position = UDim2.fromOffset(15, 5),
+				TextSize = isThemeDialog and 16 or 15,
+				Position = UDim2.fromOffset(0, 5),
 				BackgroundTransparency = 1
 			}), "Text"),
 			InsertTheme(Create("TextLabel", {
@@ -2074,12 +2082,12 @@ function redzlib:MakeWindow(Configs)
 				Text = DText,
 				TextXAlignment = "Left",
 				TextColor3 = Theme["Color Dark Text"],
-				TextSize = 12,
-				Position = UDim2.fromOffset(15, 25),
+				TextSize = isThemeDialog and 13 or 12,
+				Position = UDim2.fromOffset(15, isThemeDialog and 35 or 25),
 				BackgroundTransparency = 1,
 				TextWrapped = true
 			}), "DarkText")
-		})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame)
+		})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame, UDim.new(0, 5))
 		
 		local ButtonsHolder = Create("Frame", Frame, {
 			Size = UDim2.fromScale(1, 0.35),
@@ -2091,7 +2099,7 @@ function redzlib:MakeWindow(Configs)
 			Create("UIListLayout", {
 				Padding = UDim.new(0, 10),
 				VerticalAlignment = "Center",
-				FillDirection = "Horizontal",
+				FillDirection = isThemeDialog and "Vertical" or "Horizontal",
 				HorizontalAlignment = "Center"
 			})
 		})
@@ -2107,7 +2115,7 @@ function redzlib:MakeWindow(Configs)
 		
 		MainCorner:Clone().Parent = Screen
 		Frame.Parent = Screen
-		CreateTween({Frame, "Size", UDim2.fromOffset(250, 150), 0.2})
+		CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth, dialogHeight), 0.2})
 		CreateTween({Frame, "Transparency", 0, 0.15})
 		CreateTween({Screen, "Transparency", 0.3, 0.15})
 		
@@ -2118,24 +2126,28 @@ function redzlib:MakeWindow(Configs)
 			
 			ButtonCount = ButtonCount + 1
 			local Button = Make("Button", ButtonsHolder)
-			Make("Corner", Button)
+			-- Botões retangulares
+			Make("Corner", Button, UDim.new(0, 3))
 			SetProps(Button, {
 				Text = Name,
 				Font = Enum.Font.GothamBold,
 				TextColor3 = Theme["Color Text"],
-				TextSize = 12
+				TextSize = isThemeDialog and 13 or 12,
+				Size = isThemeDialog and UDim2.new(0.8, 0, 0, 35) or UDim2.new(1 / ButtonCount, -(((ButtonCount - 1) * 20) / ButtonCount), 0, 32)
 			})
 			
-			for _,Button in pairs(ButtonsHolder:GetChildren()) do
-				if Button:IsA("TextButton") then
-					Button.Size = UDim2.new(1 / ButtonCount, -(((ButtonCount - 1) * 20) / ButtonCount), 0, 32)
+			if not isThemeDialog then
+				for _,Button in pairs(ButtonsHolder:GetChildren()) do
+					if Button:IsA("TextButton") then
+						Button.Size = UDim2.new(1 / ButtonCount, -(((ButtonCount - 1) * 20) / ButtonCount), 0, 32)
+					end
 				end
 			end
 			Button.Activated:Connect(Dialog.Close)
 			Button.Activated:Connect(Callback)
 		end
 		function Dialog:Close()
-			CreateTween({Frame, "Size", UDim2.fromOffset(250 * 1.08, 150 * 1.08), 0.2})
+			CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08), 0.2})
 			CreateTween({Screen, "Transparency", 1, 0.15})
 			CreateTween({Frame, "Transparency", 1, 0.15, true})
 			Screen:Destroy()
@@ -2171,7 +2183,9 @@ function redzlib:MakeWindow(Configs)
 		
 		local TabSelect = Make("Button", MainScroll, {
 			Size = UDim2.new(1, 0, 0, 42)
-		})Make("Corner", TabSelect)
+		})
+		-- Abas retangulares
+		Make("Corner", TabSelect, UDim.new(0, 3))
 		
 		local LabelTitle = InsertTheme(Create("TextLabel", TabSelect, {
 			Size = UDim2.new(1, TIcon and -25 or -15, 1),
@@ -2389,7 +2403,9 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
+			}), "Stroke")
+			-- Toggle retangular
+			Make("Corner", ToggleHolder, UDim.new(0, 3))
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
@@ -2403,7 +2419,9 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(0, 0, 0.5),
 				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundColor3 = Theme["Color Theme"]
-			}), "Theme")Make("Corner", Toggle, UDim.new(0.5, 0))
+			}), "Theme")
+			-- Toggle redondo para contraste
+			Make("Corner", Toggle, UDim.new(0.5, 0))
 			
 			local WaitClick
 			local function SetToggle(Val)
@@ -2466,7 +2484,9 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
+			}), "Stroke")
+			-- Dropdown retangular
+			Make("Corner", SelectedFrame, UDim.new(0, 3))
 			
 			local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
 				Size = UDim2.new(0.85, 0, 0.85, 0),
@@ -2503,7 +2523,11 @@ function redzlib:MakeWindow(Configs)
 				Name = "DropdownFrame",
 				ClipsDescendants = true,
 				Active = true
-			})Make("Corner", DropFrame)Make("Stroke", DropFrame)Make("Gradient", DropFrame, {Rotation = 60})
+			})
+			-- Dropdown retangular
+			Make("Corner", DropFrame, UDim.new(0, 3))
+			Make("Stroke", DropFrame)
+			Make("Gradient", DropFrame, {Rotation = 60})
 			
 			local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
 				ScrollBarImageColor3 = Theme["Color Theme"],
@@ -2678,7 +2702,9 @@ function redzlib:MakeWindow(Configs)
 						Size = UDim2.new(1, 0, 0, 21),
 						Position = UDim2.new(0, 0, 0.5),
 						AnchorPoint = Vector2.new(0, 0.5)
-					})Make("Corner", Button, UDim.new(0, 4))
+					})
+					-- Opções retangulares
+					Make("Corner", Button, UDim.new(0, 2))
 					
 					local IsSelected = InsertTheme(Create("Frame", Button, {
 						Position = UDim2.new(0, 1, 0.5),
@@ -2823,13 +2849,15 @@ function redzlib:MakeWindow(Configs)
 				Size = UDim2.new(1, -20, 0, 6),
 				Position = UDim2.new(0.5, 0, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5)
-			}), "Stroke")Make("Corner", SliderBar)
+			}), "Stroke")
+			-- Slider retangular
+			Make("Corner", SliderBar, UDim.new(0, 3))
 			
 			local Indicator = InsertTheme(Create("Frame", SliderBar, {
 				BackgroundColor3 = Theme["Color Theme"],
 				Size = UDim2.fromScale(0.3, 1),
 				BorderSizePixel = 0
-			}), "Theme")Make("Corner", Indicator)
+			}), "Theme")Make("Corner", Indicator, UDim.new(0, 3))
 			
 			local SliderIcon = Create("Frame", SliderBar, {
 				Size = UDim2.new(0, 6, 0, 12),
@@ -2837,7 +2865,7 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.fromScale(0.3, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				BackgroundTransparency = 0.2
-			})Make("Corner", SliderIcon)
+			})Make("Corner", SliderIcon, UDim.new(0, 2))
 			
 			local LabelVal = InsertTheme(Create("TextLabel", SliderHolder, {
 				Size = UDim2.new(0, 14, 0, 14),
@@ -2949,7 +2977,9 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
+			}), "Stroke")
+			-- TextBox retangular
+			Make("Corner", SelectedFrame, UDim.new(0, 3))
 			
 			local TextBoxInput = InsertTheme(Create("TextBox", SelectedFrame, {
 				Size = UDim2.new(0.85, 0, 0.85, 0),
@@ -3030,7 +3060,8 @@ function redzlib:MakeWindow(Configs)
 				BackgroundColor3 = Theme["Color Hub 2"],
 				ClipsDescendants = true
 			}), "Frame")
-			Make("Corner", MainFrame, UDim.new(0, 12))
+			-- Discord invite retangular
+			Make("Corner", MainFrame, UDim.new(0, 5))
 			Make("Stroke", MainFrame)
 			
 			local BannerArea = Create("ImageLabel", MainFrame, {
@@ -3040,7 +3071,7 @@ function redzlib:MakeWindow(Configs)
 				BackgroundTransparency = BannerImage ~= "" and 1 or 0,
 				ScaleType = Enum.ScaleType.Crop
 			})
-			Make("Corner", BannerArea, UDim.new(0, 12))
+			Make("Corner", BannerArea, UDim.new(0, 5))
 			
 			if BannerImage == "" then
 				local BannerGradient = Create("UIGradient", BannerArea, {
@@ -3060,7 +3091,7 @@ function redzlib:MakeWindow(Configs)
 				BackgroundTransparency = Logo == "" and 1 or 0,
 				BackgroundColor3 = Theme["Color Hub 2"]
 			})
-			Make("Corner", ServerIcon, UDim.new(0, 8))
+			Make("Corner", ServerIcon, UDim.new(0, 5))
 			if Logo ~= "" then
 				Make("Stroke", ServerIcon, nil, Theme["Color Hub 2"], 2.2)
 			end
@@ -3174,7 +3205,8 @@ function redzlib:MakeWindow(Configs)
 				BackgroundColor3 = Color3.fromRGB(0, 150, 220),
 				TextColor3 = Theme["Color Text"]
 			}), "Text")
-			Make("Corner", JoinButton, UDim.new(0.5, 0))
+			-- Botão de join retangular
+			Make("Corner", JoinButton, UDim.new(0, 3))
 			
 			local clickCooldown = 0
 			JoinButton.Activated:Connect(function()
