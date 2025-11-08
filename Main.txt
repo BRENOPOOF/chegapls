@@ -1950,7 +1950,7 @@ function redzlib:MakeWindow(Configs)
 		WaitClick = false
 	end
 	
-function Window:ConfigBtn()
+	function Window:ConfigBtn()
 	local ConfigDialog = Window:Dialog({
 		Title = "🎨 Configurações de Tema",
 		Text = "Escolha o tema para personalizar a interface:",
@@ -1973,7 +1973,9 @@ function Window:ConfigBtn()
 			{"🟡 Yellow", function()
 				redzlib:SetTheme("Yellow")
 			end},
-			{"❌ Cancelar"}
+			{"❌ Cancelar", function()
+				ConfigDialog:Close()
+			end}
 		}
 	})
 end
@@ -1984,107 +1986,211 @@ function Window:Dialog(Configs)
 		Window:MinimizeBtn()
 	end
 	
-	local DTitle = Configs[1] or Configs.Title or "Dialog"
-	local DText = Configs[2] or Configs.Text or "This is a Dialog"
-	local DOptions = Configs[3] or Configs.Options or {}
+	local DTitle = Configs.Title or "Dialog"
+	local DText = Configs.Text or "This is a Dialog"
+	local DOptions = Configs.Options or {}
 	
-	-- Tamanho maior para acomodar a grade de botões
-	local isThemeDialog = DTitle:find("Tema") or DTitle:find("Configurações")
-	local dialogWidth = isThemeDialog and 320 or 250
-	local dialogHeight = isThemeDialog and 280 : 200
+	-- Tamanho para acomodar a grade de botões
+	local dialogWidth = 320
+	local dialogHeight = 280
 	
+	-- Criar a tela de fundo do diálogo
+	local Screen = Create("Frame", MainFrame, {
+		Name = "Dialog",
+		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+		BackgroundTransparency = 0.6,
+		Size = UDim2.new(1, 0, 1, 0),
+		Active = true,
+		ZIndex = 10
+	})
+	
+	Make("Corner", Screen, UDim.new(0, 5))
+	
+	-- Criar o frame principal do diálogo
 	local Frame = Create("Frame", {
 		Active = true,
 		Size = UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08),
 		Position = UDim2.fromScale(0.5, 0.5),
-		AnchorPoint = Vector2.new(0.5, 0.5)
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundColor3 = Theme["Color Hub 1"],
+		ZIndex = 11
 	}, {
-		InsertTheme(Create("TextLabel", {
+		Create("UIGradient", {
+			Rotation = 270,
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Theme["Color Hub 1"]),
+				ColorSequenceKeypoint.new(1, Theme["Color Hub 2"])
+			})
+		}),
+		Create("UIStroke", {
+			Color = Theme["Color Stroke"],
+			Thickness = 2
+		}),
+		Create("UICorner", {
+			CornerRadius = UDim.new(0, 5)
+		}),
+		
+		-- Título
+		Create("TextLabel", {
 			Font = Enum.Font.GothamBold,
-			Size = UDim2.new(1, 0, 0, 20),
+			Size = UDim2.new(1, 0, 0, 25),
 			Text = DTitle,
 			TextXAlignment = "Center",
 			TextColor3 = Theme["Color Text"],
 			TextSize = 14,
-			Position = UDim2.fromOffset(0, 5),
-			BackgroundTransparency = 1
-		}), "Text"),
-		InsertTheme(Create("TextLabel", {
+			Position = UDim2.fromOffset(0, 8),
+			BackgroundTransparency = 1,
+			ZIndex = 12
+		}),
+		
+		-- Texto descritivo
+		Create("TextLabel", {
 			Font = Enum.Font.GothamMedium,
-			Size = UDim2.new(1, -25),
-			AutomaticSize = "Y",
+			Size = UDim2.new(1, -20, 0, 40),
 			Text = DText,
 			TextXAlignment = "Left",
+			TextYAlignment = "Top",
 			TextColor3 = Theme["Color Dark Text"],
 			TextSize = 11,
-			Position = UDim2.fromOffset(15, 25),
+			Position = UDim2.fromOffset(10, 35),
 			BackgroundTransparency = 1,
-			TextWrapped = true
-		}), "DarkText")
-	})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame, UDim.new(0, 5))
+			TextWrapped = true,
+			ZIndex = 12
+		}),
+		
+		-- Linha separadora
+		Create("Frame", {
+			Size = UDim2.new(1, -20, 0, 1),
+			Position = UDim2.fromOffset(10, 80),
+			BackgroundColor3 = Theme["Color Stroke"],
+			BackgroundTransparency = 0.5,
+			ZIndex = 12
+		})
+	})
 	
-	-- Container principal para os botões com grade
+	-- Container para os botões em grade
 	local ButtonsHolder = Create("Frame", Frame, {
-		Size = UDim2.new(1, -20, 0, 150),
-		Position = UDim2.fromScale(0.5, 0.8),
-		AnchorPoint = Vector2.new(0.5, 0.8),
-		BackgroundTransparency = 1
+		Size = UDim2.new(1, -20, 0, 160),
+		Position = UDim2.fromScale(0.5, 0.85),
+		AnchorPoint = Vector2.new(0.5, 0.85),
+		BackgroundTransparency = 1,
+		ZIndex = 12
 	}, {
 		Create("UIGridLayout", {
-			CellSize = UDim2.new(0, 90, 0, 30),  -- Tamanho de cada célula
-			CellPadding = UDim2.new(0, 10, 0, 8),  -- Espaçamento entre células
+			CellSize = UDim2.new(0, 90, 0, 32),
+			CellPadding = UDim2.new(0, 8, 0, 8),
 			HorizontalAlignment = "Center",
 			VerticalAlignment = "Center",
 			SortOrder = "LayoutOrder",
 			StartCorner = "TopLeft"
+		}),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, 5),
+			PaddingBottom = UDim.new(0, 5)
 		})
 	})
 	
-	local Screen = InsertTheme(Create("Frame", MainFrame, {
-		BackgroundTransparency = 0.6,
-		Active = true,
-		BackgroundColor3 = Theme["Color Hub 2"],
-		Size = UDim2.new(1, 0, 1, 0),
-		BackgroundColor3 = Theme["Color Stroke"],
-		Name = "Dialog"
-	}), "Stroke")
-	
-	MainCorner:Clone().Parent = Screen
 	Frame.Parent = Screen
-	CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth, dialogHeight), 0.2})
-	CreateTween({Frame, "Transparency", 0, 0.15})
-	CreateTween({Screen, "Transparency", 0.3, 0.15})
 	
-	local ButtonCount, Dialog = 1, {}
+	-- Animações de entrada
+	CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth, dialogHeight), 0.2})
+	CreateTween({Frame, "BackgroundTransparency", 0, 0.15})
+	CreateTween({Screen, "BackgroundTransparency", 0.4, 0.15})
+	
+	-- Funções do diálogo
+	local Dialog = {}
+	local ButtonCount = 1
+	
 	function Dialog:Button(Configs)
 		local Name = Configs[1] or Configs.Name or Configs.Title or ""
-		local Callback = Configs[2] or Configs.Callback or function()end
+		local Callback = Configs[2] or Configs.Callback or function() end
 		
-		local Button = Make("Button", ButtonsHolder)
-		Make("Corner", Button, UDim.new(0, 5))
-		SetProps(Button, {
+		local Button = Create("TextButton", ButtonsHolder, {
 			Text = Name,
 			Font = Enum.Font.GothamBold,
 			TextColor3 = Theme["Color Text"],
 			TextSize = 11,
-			Size = UDim2.new(0, 90, 0, 30),  -- Tamanho fixo para quadrados
-			LayoutOrder = ButtonCount
+			Size = UDim2.new(0, 90, 0, 32),
+			BackgroundColor3 = Theme["Color Hub 2"],
+			AutoButtonColor = false,
+			LayoutOrder = ButtonCount,
+			ZIndex = 13
 		})
 		
-		Button.Activated:Connect(Dialog.Close)
-		Button.Activated:Connect(Callback)
+		Make("Corner", Button, UDim.new(0, 5))
+		Make("Stroke", Button, {Color = Theme["Color Stroke"], Thickness = 1})
+		
+		-- Efeitos hover do botão
+		Button.MouseEnter:Connect(function()
+			CreateTween({Button, "BackgroundColor3", Theme["Color Stroke"], 0.1})
+			CreateTween({Button, "TextColor3", Theme["Color Hub 1"], 0.1})
+		end)
+		
+		Button.MouseLeave:Connect(function()
+			CreateTween({Button, "BackgroundColor3", Theme["Color Hub 2"], 0.1})
+			CreateTween({Button, "TextColor3", Theme["Color Text"], 0.1})
+		end)
+		
+		Button.MouseButton1Down:Connect(function()
+			CreateTween({Button, "BackgroundColor3", Theme["Color Text"], 0.1})
+		end)
+		
+		Button.MouseButton1Up:Connect(function()
+			CreateTween({Button, "BackgroundColor3", Theme["Color Stroke"], 0.1})
+		end)
+		
+		-- Ações do botão
+		Button.Activated:Connect(function()
+			if Name ~= "❌ Cancelar" then
+				Dialog:Close()
+			end
+			Callback()
+		end)
 		
 		ButtonCount = ButtonCount + 1
+		return Button
 	end
+	
 	function Dialog:Close()
+		-- Animações de saída
 		CreateTween({Frame, "Size", UDim2.fromOffset(dialogWidth * 1.08, dialogHeight * 1.08), 0.2})
-		CreateTween({Screen, "Transparency", 1, 0.15})
-		CreateTween({Frame, "Transparency", 1, 0.15, true})
-		Screen:Destroy()
+		CreateTween({Screen, "BackgroundTransparency", 1, 0.15})
+		CreateTween({Frame, "BackgroundTransparency", 1, 0.15})
+		
+		-- Destruir após animação
+		wait(0.15)
+		if Screen then
+			Screen:Destroy()
+		end
 	end
-	table.foreach(DOptions, function(_,Button)
-		Dialog:Button(Button)
+	
+	-- Fechar ao clicar fora
+	Screen.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local isOverFrame = Frame:GetBoundingBox().Position
+			local mousePos = input.Position
+			
+			if not (mousePos.X >= isOverFrame.X and mousePos.X <= isOverFrame.X + Frame.AbsoluteSize.X and
+					mousePos.Y >= isOverFrame.Y and mousePos.Y <= isOverFrame.Y + Frame.AbsoluteSize.Y) then
+				Dialog:Close()
+			end
+		end
 	end)
+	
+	-- Fechar com ESC
+	local connection
+	connection = game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+		if not processed and input.KeyCode == Enum.KeyCode.Escape then
+			connection:Disconnect()
+			Dialog:Close()
+		end
+	end)
+	
+	-- Criar os botões das opções
+	for _, option in pairs(DOptions) do
+		Dialog:Button(option)
+	end
+	
 	return Dialog
 end
 	
