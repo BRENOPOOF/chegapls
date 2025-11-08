@@ -1496,6 +1496,22 @@ function redzlib:UpdateAllInstances()
 				if instance:FindFirstChildOfClass("UIGradient") then
 					instance:FindFirstChildOfClass("UIGradient").Color = Theme["Color Hub 1"]
 				end
+			elseif instanceType == "Button" then
+				instance.BackgroundColor3 = Theme["Color Hub 2"]
+			elseif instanceType == "ToggleHolder" then
+				instance.BackgroundColor3 = Theme["Color Stroke"]
+			elseif instanceType == "Selected" then
+				instance.BackgroundColor3 = Theme["Color Theme"]
+			elseif instanceType == "SliderBar" then
+				instance.BackgroundColor3 = Theme["Color Stroke"]
+			elseif instanceType == "SliderIndicator" then
+				instance.BackgroundColor3 = Theme["Color Theme"]
+			elseif instanceType == "DropdownFrame" then
+				instance.BackgroundColor3 = Theme["Color Hub 2"]
+			elseif instanceType == "SectionText" then
+				instance.TextColor3 = Theme["Color Dark Blue"]
+			elseif instanceType == "JoinButton" then
+				instance.BackgroundColor3 = Theme["Color Theme"]
 			end
 		end
 	end
@@ -1508,6 +1524,16 @@ function redzlib:UpdateAllInstances()
 				if particleData.Glow then
 					particleData.Glow.BackgroundColor3 = Theme["Color Theme"]
 				end
+			end
+		end
+	end
+	
+	-- Atualizar todos os elementos das tabs
+	for _, tabData in pairs(self.Tabs) do
+		if tabData.func and tabData.func.Cont and tabData.func.Cont.Parent then
+			-- Atualizar scrollbar das containers
+			if tabData.func.Cont:FindFirstChildOfClass("UIScrollBar") then
+				tabData.func.Cont.ScrollBarImageColor3 = Theme["Color Theme"]
 			end
 		end
 	end
@@ -2363,7 +2389,7 @@ function redzlib:MakeWindow(Configs)
 				TextTruncate = "AtEnd",
 				TextSize = 11,
 				TextXAlignment = "Left"
-			}), "Text")
+			}), "SectionText")
 			
 			local Section = {}
 			table.insert(redzlib.Options, {type = "Section", Name = SectionName, func = Section})
@@ -2459,7 +2485,7 @@ function redzlib:MakeWindow(Configs)
 				Position = UDim2.new(1, -10, 0.5),
 				AnchorPoint = Vector2.new(1, 0.5),
 				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
+			}), "ToggleHolder")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
 			
 			local Slider = Create("Frame", ToggleHolder, {
 				BackgroundTransparency = 1,
@@ -2565,15 +2591,15 @@ function redzlib:MakeWindow(Configs)
 				Text = ""
 			})
 			
-			local DropFrame = Create("Frame", NoClickFrame, {
+			local DropFrame = InsertTheme(Create("Frame", NoClickFrame, {
 				Size = UDim2.new(SelectedFrame.Size.X, 0, 0),
 				BackgroundTransparency = 0.1,
-				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				BackgroundColor3 = Theme["Color Hub 2"],
 				AnchorPoint = Vector2.new(0, 1),
 				Name = "DropdownFrame",
 				ClipsDescendants = true,
 				Active = true
-			})Make("Corner", DropFrame, UDim.new(0, 8))Make("Stroke", DropFrame)Make("Gradient", DropFrame, {Rotation = 60})
+			}), "DropdownFrame")Make("Corner", DropFrame, UDim.new(0, 8))Make("Stroke", DropFrame)Make("Gradient", DropFrame, {Rotation = 60})
 			
 			local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
 				ScrollBarImageColor3 = Theme["Color Theme"],
@@ -2756,7 +2782,7 @@ function redzlib:MakeWindow(Configs)
 						BackgroundColor3 = Theme["Color Theme"],
 						BackgroundTransparency = 1,
 						AnchorPoint = Vector2.new(0, 0.5)
-					}), "Theme")Make("Corner", IsSelected, UDim.new(0.5, 0))
+					}), "Selected")Make("Corner", IsSelected, UDim.new(0.5, 0))
 					
 					local OptioneName = InsertTheme(Create("TextLabel", Button, {
 						Size = UDim2.new(1, 0, 1),
@@ -2893,13 +2919,13 @@ function redzlib:MakeWindow(Configs)
 				Size = UDim2.new(1, -20, 0, 6),
 				Position = UDim2.new(0.5, 0, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5)
-			}), "Stroke")Make("Corner", SliderBar, UDim.new(0.5, 0))
+			}), "SliderBar")Make("Corner", SliderBar, UDim.new(0.5, 0))
 			
 			local Indicator = InsertTheme(Create("Frame", SliderBar, {
 				BackgroundColor3 = Theme["Color Theme"],
 				Size = UDim2.fromScale(0.3, 1),
 				BorderSizePixel = 0
-			}), "Theme")Make("Corner", Indicator, UDim.new(0.5, 0))
+			}), "SliderIndicator")Make("Corner", Indicator, UDim.new(0.5, 0))
 			
 			local SliderIcon = Create("Frame", SliderBar, {
 				Size = UDim2.new(0, 6, 0, 12),
@@ -3241,9 +3267,9 @@ function redzlib:MakeWindow(Configs)
 				Text = "Join Server",
 				Font = Enum.Font.GothamBold,
 				TextSize = 10,
-				BackgroundColor3 = Color3.fromRGB(0, 150, 220),
+				BackgroundColor3 = Theme["Color Theme"],
 				TextColor3 = Theme["Color Text"]
-			}), "Text")
+			}), "JoinButton")
 			Make("Corner", JoinButton, UDim.new(0.5, 0))
 			
 			local clickCooldown = 0
