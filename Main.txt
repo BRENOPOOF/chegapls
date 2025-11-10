@@ -1667,10 +1667,10 @@ function redzlib:MakeWindow(Configs)
 	})
 	
 	local ParticleConfig = {
-		MaxParticles = 30,
+		MaxParticles = 90,
 		SpawnRate = 0.1,
-		ParticleSize = {Min = 2, Max = 4},
-		ParticleSpeed = {Min = 6, Max = 12},
+		ParticleSize = {Min = 2, Max = 5},
+		ParticleSpeed = {Min = 15, Max = 25},
 		ParticleLifetime = 6
 	}
 
